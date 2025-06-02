@@ -7,15 +7,21 @@
       apt:
         update_cache: yes
 
+    - name: Ensure ubuntu user has Docker permissions
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
     - name: Copy Nginx host configuration
       copy:
-        src: infra/nginx-host.conf
+        src: nginx-host.conf
         dest: /etc/nginx/sites-available/default
       notify: Restart Nginx
 
     - name: Copy docker-compose.yml
       copy:
-        src: /app/docker-compose.yml
+        src: ../app/docker-compose.yml
         dest: /home/ubuntu/docker-compose.yml
         owner: ubuntu
         group: ubuntu
