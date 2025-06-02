@@ -33,7 +33,7 @@ jobs:
 
       - name: Install Python dependencies for Ansible
         run: |
-          pip install requests
+          pip install requests jsondiff PyYAML docker
 
       - name: Install community.docker collection for Ansible
         run: ansible-galaxy collection install community.docker:==3.5.0
