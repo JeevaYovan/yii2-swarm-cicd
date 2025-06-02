@@ -1,8 +1,8 @@
 ---
-- hosts: 43.204.202.37
-  become: yes  # Run tasks as sudo
+- name: Set up EC2 instance for Yii2 application
+  hosts: all
+  become: yes
   tasks:
-    # Provisioning: Install Docker and initialize Swarm
     - name: Update apt cache
       apt:
         update_cache: yes
@@ -12,11 +12,27 @@
         name: docker.io
         state: present
 
+    - name: Install docker-compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
     - name: Initialize Docker Swarm
       command: docker swarm init
-      ignore_errors: yes  # Skip if already initialized
+      ignore_errors: yes
 
-    # Configuring Services: Install and configure Nginx
     - name: Install Nginx
       apt:
         name: nginx
@@ -25,25 +41,30 @@
     - name: Copy Nginx host configuration
       copy:
         src: infra/nginx-host.conf
-        dest: /etc/nginx/sites-available/default
+        dest: /etc/nginx/sites-available/yii.zubera.one
       notify: Restart Nginx
 
-    # Deploying Application: Copy and deploy Docker stack
     - name: Copy docker-compose.yml
       copy:
-        src: app/docker-compose.yml
+        src: /app/docker-compose.yml
         dest: /home/ubuntu/docker-compose.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
 
     - name: Pull Docker image
-      docker_image:
+      community.docker.docker_image:
         name: jeevayovan/yii2-app:latest
         source: pull
+      become: no
+      delegate_to: localhost
 
     - name: Deploy Docker stack
-      docker_stack:
+      community.docker.docker_stack:
         name: myapp
         compose: /home/ubuntu/docker-compose.yml
         state: present
+      become: no
 
   handlers:
     - name: Restart Nginx
