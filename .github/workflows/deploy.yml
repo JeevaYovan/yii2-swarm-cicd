@@ -26,23 +26,22 @@ jobs:
       #     docker build -t jeevayovan/yii2-app:latest -f app/Dockerfile app/
       #     docker push jeevayovan/yii2-app:latest
 
-      - name: Install Ansible on runner
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
+      # - name: Install Ansible on runner
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y ansible python3-pip
 
       - name: Install Python dependencies for Ansible
         run: |
-          pip install requests 
-          pip install PyYAML  
-          pip install jsondiff
-          pip install docker
+          python3 -m pip install --user requests jsondiff PyYAML docker
+
       - name: Install community.docker collection for Ansible
         run: ansible-galaxy collection install community.docker:==3.5.0
 
       - name: Run Ansible playbook to deploy on EC2
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
+          ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > websites-key-sig.pem
           chmod 400 websites-key-sig.pem
