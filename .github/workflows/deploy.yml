@@ -34,6 +34,6 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-          chmod 400 private_key.pem
-          ansible-playbook -i ${{ secrets.EC2_HOST }}, setup.yml --user ubuntu --key-file private_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > websites-key-sig.pem
+          chmod 400 websites-key-sig.pem
+          ansible-playbook -i ${{ secrets.EC2_HOST }}, setup.yml --user ubuntu --key-file websites-key-sig.pem
