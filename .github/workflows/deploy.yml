@@ -19,7 +19,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t jeevayovan/yii2-app:latest .
+          docker build -t jeevayovan/yii2-app:latest -f app/Dockerfile app/
           docker push jeevayovan/yii2-app:latest
 
       - name: Install Ansible on runner
