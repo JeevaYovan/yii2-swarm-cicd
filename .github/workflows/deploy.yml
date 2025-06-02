@@ -1,0 +1,39 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t jeevayovan/yii2-app:latest .
+          docker push jeevayovan/yii2-app:latest
+
+      - name: Install Ansible on runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Install community.docker collection for Ansible
+        run: ansible-galaxy collection install community.docker
+
+      - name: Run Ansible playbook to deploy on EC2
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 400 private_key.pem
+          ansible-playbook -i ${{ secrets.EC2_HOST }}, setup.yml --user ubuntu --key-file private_key.pem
