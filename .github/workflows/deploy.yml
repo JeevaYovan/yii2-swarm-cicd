@@ -21,10 +21,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
-        run: |
-          docker build -t jeevayovan/yii2-app:latest -f app/Dockerfile app/
-          docker push jeevayovan/yii2-app:latest
+      # - name: Build and push Docker image
+      #   run: |
+      #     docker build -t jeevayovan/yii2-app:latest -f app/Dockerfile app/
+      #     docker push jeevayovan/yii2-app:latest
 
       - name: Install Ansible on runner
         run: |
@@ -33,8 +33,10 @@ jobs:
 
       - name: Install Python dependencies for Ansible
         run: |
-          pip install requests jsondiff PyYAML docker
-
+          pip install requests 
+          pip install PyYAML  
+          pip install jsondiff
+          pip install docker
       - name: Install community.docker collection for Ansible
         run: ansible-galaxy collection install community.docker:==3.5.0
 
