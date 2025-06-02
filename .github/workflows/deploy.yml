@@ -11,6 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Verify Docker is installed on runner
+        run: |
+          docker --version
+
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
@@ -27,8 +31,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
+      - name: Install Python dependencies for Ansible
+        run: |
+          pip install requests
+
       - name: Install community.docker collection for Ansible
-        run: ansible-galaxy collection install community.docker
+        run: ansible-galaxy collection install community.docker:==3.5.0
 
       - name: Run Ansible playbook to deploy on EC2
         env:
