@@ -7,41 +7,10 @@
       apt:
         update_cache: yes
 
-    - name: Install Docker
-      apt:
-        name: docker.io
-        state: present
-
-    - name: Install docker-compose
-      apt:
-        name: docker-compose
-        state: present
-
-    - name: Add ubuntu user to docker group
-      user:
-        name: ubuntu
-        groups: docker
-        append: yes
-
-    - name: Start Docker service
-      service:
-        name: docker
-        state: started
-        enabled: yes
-
-    - name: Initialize Docker Swarm
-      command: docker swarm init
-      ignore_errors: yes
-
-    - name: Install Nginx
-      apt:
-        name: nginx
-        state: present
-
     - name: Copy Nginx host configuration
       copy:
         src: infra/nginx-host.conf
-        dest: /etc/nginx/sites-available/yii.zubera.one
+        dest: /etc/nginx/sites-available/default
       notify: Restart Nginx
 
     - name: Copy docker-compose.yml
