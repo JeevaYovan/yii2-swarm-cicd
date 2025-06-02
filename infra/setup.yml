@@ -1,0 +1,52 @@
+---
+- hosts: 43.204.202.37
+  become: yes  # Run tasks as sudo
+  tasks:
+    # Provisioning: Install Docker and initialize Swarm
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Initialize Docker Swarm
+      command: docker swarm init
+      ignore_errors: yes  # Skip if already initialized
+
+    # Configuring Services: Install and configure Nginx
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Copy Nginx host configuration
+      copy:
+        src: infra/nginx-host.conf
+        dest: /etc/nginx/sites-available/default
+      notify: Restart Nginx
+
+    # Deploying Application: Copy and deploy Docker stack
+    - name: Copy docker-compose.yml
+      copy:
+        src: app/docker-compose.yml
+        dest: /home/ubuntu/docker-compose.yml
+
+    - name: Pull Docker image
+      docker_image:
+        name: jeevayovan/yii2-app:latest
+        source: pull
+
+    - name: Deploy Docker stack
+      docker_stack:
+        name: myapp
+        compose: /home/ubuntu/docker-compose.yml
+        state: present
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
